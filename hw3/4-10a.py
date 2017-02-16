@@ -59,18 +59,22 @@ def partB(means, labels):
     print('Transforming')
     mds_out = clf.fit_transform(mds_out)
     print('Plotting')
+    plt.figure(1)
+    plt.subplot(111)
     plt.scatter(mds_out[:,0], mds_out[:,1])
     
     for point in zip(mds_out[:,0], mds_out[:,1], range(0,10)):
         plt.annotate(labels[point[2]], xy = point[0:2], xytext = (6, -6), textcoords = 'offset pixels')
         
-    plt.show()
-
+    plt.show(block=False)
+    return plt.subplot(111)
+    
     
 sorted_data = read_files()
 label_names = read_meta()
 means = compute_means(sorted_data)
-partB(means, label_names)
+figure_b = partB(means, label_names)
+print('B completed')
 #
 # input function
 # 5 files-> pictures
