@@ -37,20 +37,6 @@ def compute_means(data):
 #    print(np.isnan(np.min(ret)))
     return ret
 
-#def compute_pcas(data):    
-#    ret = np.empty((10,20))
-#    for i in range(10):
-#        #pca on data[i]
-##        print(data[i].shape)
-##        mds = manifold.MDS(n_components = 20, verbose = 1,max_iter=3000, n_jobs = 1, dissimilarity = 'precomputed')
-##        ret[i] = np.add(mds.fit_transform(data[i]))
-#        pca=PCA(n_components=20)
-#        pca.fit_transform(data[i])
-#        ret[i]=np.add(ret[i],pca.explained_variance_ratio_)
-##        print(ret[i]) 
-##    print(np.isnan(np.min(ret)))
-#    return ret
-    
     
 def make_dist_matrix(inputvectors):
     ret = np.zeros( (inputvectors.shape[0],inputvectors.shape[0]) )
@@ -62,8 +48,6 @@ def make_dist_matrix(inputvectors):
     return ret
 
 def euclidean_dist(a, b):
-#    print(np.linalg.norm(a-b),a.dtype,b.dtype)
-#    return distance.euclidean(a,b)
     return np.linalg.norm(a-b)
 
     
@@ -72,20 +56,17 @@ def make_new_dist_matrix(inputvectors,mean_matrix):
 
     for i in range(inputvectors.shape[0]):
         for j in range(inputvectors.shape[0]):
-#            print(inputvectors[i], inputvectors[j])
             ret[i][j] = 1/2*(new_dist(inputvectors[i], inputvectors[j],mean_matrix[i],mean_matrix[j])+new_dist(inputvectors[j], inputvectors[i],mean_matrix[j],mean_matrix[i]))
     return ret
 
 def new_dist(a, b,mean_a,mean_b):
-#    print(np.linalg.norm(a-b),a.dtype,b.dtype)
-#    return distance.euclidean(a,b)
-    
-    # project b to the first 20 principle components of A
     pca=PCA(n_components=20)
     transformed=pca.fit_transform(b)
     inverse=pca.inverse_transform(transformed)
+    for line in inverse:
+        line=line+mean_a-mean_b
 #        s = np.sqrt(np.sum((data[i]-mean_matrix[i]-inverse)**2))
-    ret = np.sqrt(np.sum((a-(inverse+mean_a-mean_b))**2)/5000)
+    ret = np.sqrt(np.sum((a-inverse)**2)/5000)
     print (ret)
     return ret
     
@@ -101,7 +82,7 @@ def partA(data,mean_matrix,labels):
         transformed=pca.fit_transform(data[i])
         inverse=pca.inverse_transform(transformed)
 #        s = np.sqrt(np.sum((data[i]-mean_matrix[i]-inverse)**2))
-        ret[i] = np.sqrt(np.sum((data[i]-inverse)**2/5000/5000))
+        ret[i] = np.sqrt(np.sum(((data[i]-inverse))**2)/5000)
         print (ret[i])
 #        ret[i]=np.add(ret[i],pca.explained_variance_ratio_)
 #    print(np.isnan(np.min(ret)))
@@ -144,7 +125,7 @@ def partB(mean_matrix, labels):
     print('Fitting using MDS...')
     pca_out = pca.fit_transform(dist_matrix)
     print('Scaling')
-    pca_out *= np.sqrt((mean_matrix ** 2).sum()) / np.sqrt((pca_out ** 2).sum())
+#    pca_out *= np.sqrt((mean_matrix ** 2).sum()) / np.sqrt((pca_out ** 2).sum())
     if(np.isnan(np.min(pca_out)) or np.isinf(np.min(pca_out))):
         print('mds_out is erroneous')
     print(pca_out.shape)
@@ -161,33 +142,7 @@ def partB(mean_matrix, labels):
         
     plt.show(block=False)
     return plt.subplot(111)
-#    if(np.isnan(np.min(mean_matrix)) or np.isinf(np.min(mean_matrix))):
-#        print('mean matrix is erroneous')
-#    if(np.isnan(np.min(dist_matrix)) or np.isinf(np.min(dist_matrix))):
-#        print('dist_matrix is erroneous')
-##    print (dist_mat6rix)
-#    mds = manifold.MDS(n_components = 2, verbose = 1,max_iter=3000, n_jobs = 1, dissimilarity = 'precomputed')
-#    #do NOT set n_jobs to anything > 1 - it makes fit hang for some reason
-#    print('Fitting using MDS...')
-#    mds_out = mds.fit_transform(dist_matrix)
-#    print('Scaling')
-#    mds_out *= np.sqrt((mean_matrix ** 2).sum()) / np.sqrt((mds_out ** 2).sum())
-#    if(np.isnan(np.min(mds_out)) or np.isinf(np.min(mds_out))):
-#        print('mds_out is erroneous')
-#    print(mds_out.shape)
-##    pca = PCA(n_components=2)
-##    print('Transforming')
-##    mds_out = pca.fit_transform(mds_out)
-#    print('Plotting')
-#    plt.figure(1)
-#    plt.subplot(111)
-#    plt.scatter(mds_out[:,0], mds_out[:,1])
-#    
-#    for point in zip(mds_out[:,0], mds_out[:,1], range(0,10)):
-#        plt.annotate(labels[point[2]], xy = point[0:2], xytext = (6, -6), textcoords = 'offset pixels')
-#        
-##    plt.show(block=False)
-#    return plt.subplot(111)
+
 
 def partC(data,mean_matrix, labels):
     print('Begin part B')
@@ -202,13 +157,10 @@ def partC(data,mean_matrix, labels):
     print('Fitting using MDS...')
     pca_out = pca.fit_transform(dist_matrix)
     print('Scaling')
-    pca_out *= np.sqrt((mean_matrix ** 2).sum()) / np.sqrt((pca_out ** 2).sum())
     if(np.isnan(np.min(pca_out)) or np.isinf(np.min(pca_out))):
         print('mds_out is erroneous')
     print(pca_out.shape)
-#    pca = PCA(n_components=2)
-#    print('Transforming')
-#    mds_out = pca.fit_transform(mds_out)
+
     print('Plotting')
     plt.figure(1)
     plt.subplot(111)
@@ -227,8 +179,8 @@ label_names = read_meta()
 means = compute_means(sorted_data)
 #pcas = compute_pcas(sorted_data)
 #figure_a = partA(sorted_data,means,label_names)
-figure_b = partB(means, label_names)
-#figure_c = partC(sorted_data,means, label_names)
+#figure_b = partB(means, label_names)
+figure_c = partC(sorted_data,means, label_names)
 
 print('B completed')
 #
