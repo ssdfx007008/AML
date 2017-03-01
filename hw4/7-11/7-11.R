@@ -38,3 +38,10 @@ plot(abalone$Rings, part_d.res, ylab="Residuals", xlab="Rings", main="D) Residua
 abline(0, 0) 
 
 
+
+trainingSet = createDataPartition(y=abalone$Rings, p=.8, list=FALSE)
+YTrain = abalone[trainingSet, 9]
+XTrain = abalone[trainingSet, -c(9), ]
+
+part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
+part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
