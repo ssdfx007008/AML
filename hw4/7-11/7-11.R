@@ -37,14 +37,38 @@ part_d.res = resid(part_d.lm)
 plot(abalone$Rings, part_d.res, ylab="Residuals", xlab="Rings", main="D) Residuals Predicting log(Rings) w/ Gender") 
 abline(0, 0) 
 
-
-
 trainingSet = createDataPartition(y=abalone$Rings, p=.8, list=FALSE)
+
+
+#F_b
+
 YTrain = as.matrix(abalone[trainingSet, 9])
-XTrain = as.matrix(abalone[trainingSet, -c(9), ])
+XTrain = as.matrix(abalone[trainingSet, -c(1,9), ])#no sex
 
 part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
 part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
 plot(part_f.cv)
 
+#F_b
+YTrain = as.matrix(abalone[trainingSet, 9])
+XTrain = as.matrix(abalone[trainingSet, -c(9), ])#with sex
 
+part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
+part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
+plot(part_f.cv)
+
+#F_c
+YTrain = as.matrix(log(abalone[trainingSet, 9]))
+XTrain = as.matrix( abalone[trainingSet, -c(1,9), ] )#no sex
+
+part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
+part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
+plot(part_f.cv)
+
+#F_d
+YTrain = as.matrix(log(abalone[trainingSet, 9]))
+XTrain = as.matrix( abalone[trainingSet, -c(9), ] )#with sex
+
+part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
+part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
+plot(part_f.cv)
