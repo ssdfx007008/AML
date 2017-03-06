@@ -4,6 +4,7 @@ library(munsell)
 library(klaR)
 library(caret)
 library(glmnet)
+library(plotmo)
 
 setwd("E:/Documents/Git/AML/hw4/7-11")
 abalone <- read.csv(file="abalone.data", header = TRUE)
@@ -40,35 +41,57 @@ abline(0, 0)
 trainingSet = createDataPartition(y=abalone$Rings, p=.8, list=FALSE)
 
 
-#F_b
+#F_a
 
 YTrain = as.matrix(abalone[trainingSet, 9])
 XTrain = as.matrix(abalone[trainingSet, -c(1,9), ])#no sex
 
+YTest = as.matrix(abalone[-trainingSet, 9])
+XTest = as.matrix(abalone[-trainingSet, -c(1,9), ])
+
 part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
 part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
 plot(part_f.cv)
+plot( YTest, predict(part_f.cv, newx = XTest,  s = "lambda.min") - YTest, ylab = "Residuals", xlab = "Rings", main = "F-a) Regularizer predicting Rings at\n minimum Lambda w/o Sex")
+abline(0, 0) 
 
 #F_b
 YTrain = as.matrix(abalone[trainingSet, 9])
 XTrain = as.matrix(abalone[trainingSet, -c(9), ])#with sex
 
+YTest = as.matrix(abalone[-trainingSet, 9])
+XTest = as.matrix(abalone[-trainingSet, -c(9), ])#with sex
+
+
 part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
 part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
 plot(part_f.cv)
-
+plot( YTest, predict(part_f.cv, newx = XTest,  s = "lambda.min") - YTest, ylab = "Residuals", xlab = "Rings", main = "F-b) Regularizer predicting Rings at\n minimum Lambda w/ Sex")
+abline(0, 0) 
 #F_c
 YTrain = as.matrix(log(abalone[trainingSet, 9]))
 XTrain = as.matrix( abalone[trainingSet, -c(1,9), ] )#no sex
 
+YTest = as.matrix(log(abalone[-trainingSet, 9]))
+XTest = as.matrix(abalone[-trainingSet, -c(1,9), ])
+
 part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
 part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
 plot(part_f.cv)
+plot( YTest, predict(part_f.cv, newx = XTest,  s = "lambda.min") - YTest, ylab = "Residuals", xlab = "Rings", main = "F-c) Regularizer predicting log(Rings) at\n minimum Lambda w/o Sex")
+abline(0, 0) 
 
 #F_d
 YTrain = as.matrix(log(abalone[trainingSet, 9]))
 XTrain = as.matrix( abalone[trainingSet, -c(9), ] )#with sex
 
+YTest = as.matrix(log(abalone[-trainingSet, 9]))
+XTest = as.matrix(abalone[-trainingSet, -c(9), ])#with sex
+
 part_f.model = glmnet(x=XTrain, y=YTrain, alpha = 1.0, family = "gaussian")
 part_f.cv = cv.glmnet(x=XTrain, y=YTrain, type.measure="mse", alpha=1.0,family="gaussian")
 plot(part_f.cv)
+
+plot( YTest, predict(part_f.cv, newx = XTest,  s = "lambda.min") - YTest, ylab = "Residuals", xlab = "Rings", main = "F-d) Regularizer predicting log(Rings) at\n minimum Lambda w/ Sex")
+abline(0, 0) 
+
