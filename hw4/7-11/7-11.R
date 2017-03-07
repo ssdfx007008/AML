@@ -7,7 +7,9 @@ library(glmnet)
 library(plotmo)
 
 setwd("E:/Documents/Git/AML/hw4/7-11")
-abalone <- read.csv(file="abalone.data", header = TRUE)
+abalone <- read.csv(file="abalone_ver2.data", header = TRUE)
+
+plot(as.matrix(abalone$Rings), as.matrix(abalone$Sex))
 
 part_a.lm = lm(Rings ~ Length+Diameter+Height+Whole_weight+Shucked_weight+Viscera_weight+Shell_weight, data = abalone)
 part_a.res = resid(part_a.lm)
