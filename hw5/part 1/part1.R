@@ -1,0 +1,26 @@
+library(datasets)
+library(tibble)
+library(munsell)
+library(klaR)
+library(caret)
+library(glmnet)
+library(plotmo)
+
+setwd("E:/Documents/Git/AML/hw5/part 1")
+raw_data <- read.csv(file="default_features_1059_tracks.txt", header = TRUE)
+
+part_a_lat.lm = lm(Latitude ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
+                     V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
+                     V38+V39+V40+V41+V42+V43+V44+V45+V46+V47+V48+V49+V50+V51+V52+V53+V54+V55+V56+
+                     V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data)
+part_a_lat.res = resid(part_a_lat.lm)
+plot(raw_data$Latitude, part_a_lat.res, ylab="Residuals", xlab="Latitude", main="A) Residuals Predicting Latitude from features") 
+abline(0, 0) 
+
+part_a_lon.lm = lm(Longitude ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
+                     V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
+                     V38+V39+V40+V41+V42+V43+V44+V45+V46+V47+V48+V49+V50+V51+V52+V53+V54+V55+V56+
+                     V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data)
+part_a_lon.res = resid(part_a_lat.lm)
+plot(raw_data$Longitude, part_a_lon.res, ylab="Residuals", xlab="Longitude", main="A) Residuals Predicting Longitude from features") 
+abline(0, 0) 
