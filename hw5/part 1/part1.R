@@ -25,11 +25,11 @@ part_a_lon.res = resid(part_a_lat.lm)
 plot(raw_data$Longitude, part_a_lon.res, ylab="Residuals", xlab="Longitude", main="A) Residuals Predicting Longitude from features") 
 abline(0, 0) 
 
-
 #-------------------------------------------------
 
 #exponent <- function(a, pow) (abs(a)^pow)*sign(a)
 bc <- function(y, lam)((y^lam - 1)/lam)
+
 raw_data$Lat_adjusted = raw_data$Latitude + 90
 
 # part_b_lat.lm = lm(Lat_adjusted ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
@@ -77,3 +77,51 @@ summary(part_b_lon.newmodel)$r.squared
 
 
 #-----------------------
+mselm <- function(lm) (mean(lm$residuals^2))
+
+
+part_c_lat.Y = as.matrix(bc(raw_data$Lat_adjusted),part_b_lat.bestlam)
+part_c_lat.X = as.matrix(raw_data[,!names(mtcars) %in% c("Latitude", "Longitude", "Lon_adjusted","Lat_adjusted" )])
+
+
+part_c_lon.Y = as.matrix(raw_data$Longitude) #lambda was ~ 1, so no point in box cox
+part_c_lon.X = part_c_lat.X
+
+part_c_lat.ridge.model = glmnet(x=part_c_lat.X, y=part_c_lat.Y, alpha = 0, family = "gaussian")
+part_c_lat.ridge.cv = cv.glmnet(x=part_c_lat.X, y=part_c_lat.Y, type.measure="mse", alpha=0,family="gaussian")
+plot(part_c_lat.ridge.cv)
+plot(part_c_lat.Y, predict(part_c_lat.ridge.cv, newx = part_c_lat.X,  s = "lambda.min") - part_c_lat.Y, ylab = "Residuals", xlab = "Latitude", main = "Transformed Latitude, Ridge")
+abline(0, 0) 
+
+part_c_lat.lasso.model = glmnet(x=part_c_lat.X, y=part_c_lat.Y, alpha = 1, family = "gaussian")
+part_c_lat.lasso.cv = cv.glmnet(x=part_c_lat.X, y=part_c_lat.Y, type.measure="mse", alpha=1,family="gaussian")
+plot(part_c_lat.lasso.cv)
+plot(part_c_lat.Y, predict(part_c_lat.lasso.cv, newx = part_c_lat.X,  s = "lambda.min") - part_c_lat.Y, ylab = "Residuals", xlab = "Latitude", main = "Transformed Latitude, Lasso")
+abline(0, 0) 
+
+
+#-------
+
+part_c_lon.ridge.model = glmnet(x=part_c_lon.X, y=part_c_lon.Y, alpha = 0, family = "gaussian")
+part_c_lon.ridge.cv = cv.glmnet(x=part_c_lon.X, y=part_c_lon.Y, type.measure="mse", alpha=0,family="gaussian")
+plot(part_c_lon.ridge.cv)
+plot(part_c_lon.Y, predict(part_c_lon.ridge.cv, newx = part_c_lon.X,  s = "lambda.min") - part_c_lon.Y, ylab = "Residuals", xlab = "Longitude", main = "Longitude, Ridge")
+abline(0, 0) 
+
+part_c_lon.lasso.model = glmnet(x=part_c_lon.X, y=part_c_lon.Y, alpha = 1, family = "gaussian")
+part_c_lon.lasso.cv = cv.glmnet(x=part_c_lon.X, y=part_c_lon.Y, type.measure="mse", alpha=1,family="gaussian")
+plot(part_c_lon.lasso.cv)
+plot(part_c_lon.Y, predict(part_c_lon.lasso.cv, newx = part_c_lon.X,  s = "lambda.min") - part_c_lon.Y, ylab = "Residuals", xlab = "Longitude", main = "Longitude, Lasso")
+abline(0, 0) 
+
+#------------
+
+
+
+mselm(part_b_lat.newmodel)
+part_c_lat.lasso.cv$cvm[part_c_lat.lasso.cv$lambda == part_c_lat.lasso.cv$lambda.min]
+part_c_lat.ridge.cv$cvm[part_c_lat.ridge.cv$lambda == part_c_lat.ridge.cv$lambda.min]
+
+mselm(part_b_lon.newmodel)
+part_c_lon.lasso.cv$cvm[part_c_lon.lasso.cv$lambda == part_c_lon.lasso.cv$lambda.min]
+part_c_lon.ridge.cv$cvm[part_c_lon.ridge.cv$lambda == part_c_lon.ridge.cv$lambda.min]
