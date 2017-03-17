@@ -29,7 +29,7 @@ abline(0, 0)
 #-------------------------------------------------
 
 #exponent <- function(a, pow) (abs(a)^pow)*sign(a)
-
+bc <- function(y, lam)((y^lam - 1)/lam)
 raw_data$Lat_adjusted = raw_data$Latitude + 90
 # part_b_lat.lm = lm(Lat_adjusted ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
 #                                      V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
@@ -39,15 +39,15 @@ raw_data$Lat_adjusted = raw_data$Latitude + 90
 part_b_lat.bc = boxcox(Lat_adjusted ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
                          V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
                          V38+V39+V40+V41+V42+V43+V44+V45+V46+V47+V48+V49+V50+V51+V52+V53+V54+V55+V56+
-                         V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data, lambda = seq(0, 6, 1/50), plotit = TRUE)
+                         V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data, lambda = seq(-5, 5, 1/50), plotit = TRUE)
 
 part_b_lat.bestlam = part_b_lat.bc$x[which.max(part_b_lat.bc$y)]
-part_b_lat.newmodel = lm(Lat_adjusted^part_b_lat.bestlam ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
+part_b_lat.newmodel = lm(bc(Lat_adjusted,part_b_lat.bestlam) ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
                            V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
                            V38+V39+V40+V41+V42+V43+V44+V45+V46+V47+V48+V49+V50+V51+V52+V53+V54+V55+V56+
                            V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data)
-part_b_lat.newmodel.res = resid(part_b_lat.newmodel)
-plot(raw_data$Lat_adjusted, part_b_lat.newmodel.res, ylab="Residuals", xlab="Longitude", main="B) Residuals Predicting Latitude\nAfter Box-Cox") 
+part_b_lat.res = resid(part_b_lat.newmodel)
+plot(raw_data$Lat_adjusted, part_b_lat.res, ylab="Residuals", xlab="Longitude", main="B) Residuals Predicting Latitude\nAfter Box-Cox") 
 abline(0, 0) 
 
 
@@ -56,13 +56,19 @@ raw_data$Lon_adjusted = raw_data$Longitude + 90
 part_b_lon.bc = boxcox(Lon_adjusted ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
                          V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
                          V38+V39+V40+V41+V42+V43+V44+V45+V46+V47+V48+V49+V50+V51+V52+V53+V54+V55+V56+
-                         V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data, lambda = seq(0, 6, 1/50), plotit = TRUE)
+                         V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data, lambda = seq(-5, 5, 1/50), plotit = TRUE)
 
 part_b_lon.bestlam = part_b_lon.bc$x[which.max(part_b_lon.bc$y)]
-part_b_lon.newmodel = lm(Lon_adjusted^part_b_lon.bestlam ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
+part_b_lon.newmodel = lm(bc(Lon_adjusted,part_b_lon.bestlam) ~ V0+V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15+V16+V17+V18+
                            V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+V29+V30+V31+V32+V33+V34+V35+V36+V37+
                            V38+V39+V40+V41+V42+V43+V44+V45+V46+V47+V48+V49+V50+V51+V52+V53+V54+V55+V56+
                            V57+V58+V59+V60+V61+V62+V63+V64+V65+V66+V67, data = raw_data)
-part_b_lon.newmodel.res = resid(part_b_lon.newmodel)
-plot(raw_data$Lon_adjusted, part_b_lon.newmodel.res, ylab="Residuals", xlab="Longitude", main="B) Residuals Predicting Longitude\nAfter Box-Cox") 
+part_b_lon.res = resid(part_b_lon.newmodel)
+plot(raw_data$Lon_adjusted, part_b_lon.res, ylab="Residuals", xlab="Longitude", main="B) Residuals Predicting Longitude\nAfter Box-Cox") 
 abline(0, 0) 
+
+summary(part_a_lat.lm)$r.squared
+summary(part_b_lat.newmodel)$r.squared
+
+summary(part_a_lon.lm)$r.squared
+summary(part_b_lon.newmodel)$r.squared
