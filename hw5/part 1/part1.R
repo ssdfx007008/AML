@@ -80,12 +80,12 @@ summary(part_b_lon.newmodel)$r.squared
 mselm <- function(lm) (mean(lm$residuals^2))
 
 
-part_c_lat.Y = as.matrix(bc(raw_data$Lat_adjusted),part_b_lat.bestlam)
+part_c_lat.Y = as.matrix( bc(raw_data$Lat_adjusted,part_b_lat.bestlam) )
 part_c_lat.X = as.matrix(raw_data[,!names(mtcars) %in% c("Latitude", "Longitude", "Lon_adjusted","Lat_adjusted" )])
 
 
 part_c_lon.Y = as.matrix(raw_data$Longitude) #lambda was ~ 1, so no point in box cox
-part_c_lon.X = part_c_lat.X
+part_c_lon.X = as.matrix(raw_data[,!names(mtcars) %in% c("Latitude", "Longitude", "Lon_adjusted","Lat_adjusted" )])
 
 part_c_lat.ridge.model = glmnet(x=part_c_lat.X, y=part_c_lat.Y, alpha = 0, family = "gaussian")
 part_c_lat.ridge.cv = cv.glmnet(x=part_c_lat.X, y=part_c_lat.Y, type.measure="mse", alpha=0,family="gaussian")
