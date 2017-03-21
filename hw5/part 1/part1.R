@@ -77,7 +77,6 @@ summary(part_b_lon.newmodel)$r.squared
 
 
 #-----------------------
-mselm <- function(lm) (mean(lm$residuals^2))
 
 
 part_c_lat.Y = as.matrix( bc(raw_data$Lat_adjusted,part_b_lat.bestlam) )
@@ -116,12 +115,13 @@ abline(0, 0)
 
 #------------
 
+mselm <- function(lm) (mean(lm$residuals^2))
 
 
 mselm(part_b_lat.newmodel)
 part_c_lat.lasso.cv$cvm[part_c_lat.lasso.cv$lambda == part_c_lat.lasso.cv$lambda.min]
 part_c_lat.ridge.cv$cvm[part_c_lat.ridge.cv$lambda == part_c_lat.ridge.cv$lambda.min]
 
-mselm(part_b_lon.newmodel)
+mselm(part_a_lon.lm)
 part_c_lon.lasso.cv$cvm[part_c_lon.lasso.cv$lambda == part_c_lon.lasso.cv$lambda.min]
 part_c_lon.ridge.cv$cvm[part_c_lon.ridge.cv$lambda == part_c_lon.ridge.cv$lambda.min]
