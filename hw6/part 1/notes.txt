@@ -1,2 +1,0 @@
-Textbook page 234
-http://code.activestate.com/recipes/577735-expectation-maximization/

@@ -1,0 +1,13 @@
+------------  -----------------  ------------------  -----------------  ---------------  -----------------  -------------------  ------------------  ------------------  -----------------  ------------------
+Topic Number  Most Common        2nd Most Common3rd  4th                5th              6th                7th                  8th                 9th                 10th
+0             ['basri']          ['experimental']    ['similarities']   ['rated']        ['approached']     ['cellular']         ['solv']            ['chaos']           ['features']       ['nodel']
+1             ['changed']        ['meaning']         ['rated']          ['approached']   ['correlational']  ['linearities']      ['capital']         ['med']             ['computational']  ['costly']
+2             ['effected']       ['bite']            ['analyte']        ['database']     ['optimality']     ['analogical']       ['approximator']    ['generalisation']  ['rumelhart']      ['nonlinearities']
+3             ['smaller']        ['correlational']   ['features']       ['phased']       ['optimality']     ['analyte']          ['generalisation']  ['predictive']      ['processor']      ['exceed']
+4             ['recognizable']   ['crites']          ['rated']          ['rumelhart']    ['similarities']   ['sequencer']        ['solv']            ['asymptotically']  ['objection']      ['priori']
+5             ['neuronally']     ['higher']          ['contrasted']     ['spatially']    ['averaged']       ['sentation']        ['synaptic']        ['performances']    ['similarities']   ['pathological']
+6             ['computational']  ['simpler']         ['conditionally']  ['dimensional']  ['obtaining']      ['exceed']           ['linearities']     ['theoretic']       ['noncausal']      ['elemental']
+7             ['synapses']       ['conceptual']      ['dimensional']    ['mapped']       ['translate']      ['chir']             ['fixes']           ['learnability']    ['thresholded']    ['decisive']
+8             ['experimental']   ['triangle']        ['higher']         ['analyte']      ['arma']           ['mining']           ['simulator']       ['curried']         ['recurrently']    ['seriously']
+9             ['kerr']           ['fixes']           ['dynamical']      ['defined']      ['active']         ['computationally']  ['targeted']        ['statistically']   ['supported']      ['linear']
+------------  -----------------  ------------------  -----------------  ---------------  -----------------  -------------------  ------------------  ------------------  -----------------  ------------------
