@@ -1,0 +1,1782 @@
+library(matrixStats)#
+library(jpeg)#
+#
+setwd(getwd())#
+#
+balloons <- readJPEG("train_data/balloons.jpg")#
+mountains <- readJPEG("rain_data/mountains.jpg")#
+nature <- readJPEG("rain_data/nature.jpg")#
+ocean <- readJPEG("rain_data/ocean.jpg")#
+polarlights <- readJPEG("rain_data/polarlights.jpg")#
+#
+empic <- function(pic, clusters){#
+  stop_criteria <- .00001#
+  num_pixels <- prod(dim(pic))/3#
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  #get a set of all of the pixels together#
+  pixels <- matrix(0,num_pixels,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  tesing <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      tesing[i,j,] <- pixels[(i-1)*width+j,]#
+    }#
+  }#
+  pixels<-scale(pixels)#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,num_pixels, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(balloons,10), "balloons_segmented10.jpg",quality = 1)#
+writeJPEG(empic(balloons,20), "balloons_segmented20.jpg",quality = 1)#
+writeJPEG(empic(balloons,50), "balloons_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(mountains,10), "mountains_segmented10.jpg",quality = 1)#
+writeJPEG(empic(mountains,20), "mountains_segmented20.jpg",quality = 1)#
+writeJPEG(empic(mountains,50), "mountains_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(nature,10), "nature_segmented10.jpg",quality = 1)#
+writeJPEG(empic(nature,20), "nature_segmented20.jpg",quality = 1)#
+writeJPEG(empic(nature,50), "nature_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(ocean,10), "ocean_segmented10.jpg",quality = 1)#
+writeJPEG(empic(ocean,20), "ocean_segmented20.jpg",quality = 1)#
+writeJPEG(empic(ocean,50), "ocean_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(polarlights,20), "polarlights_segmented201.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented202.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented203.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented204.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented205.jpg",quality = 1)
+install.packages(jpeg)
+install.packages('jpeg')
+library(matrixStats)#
+library(jpeg)#
+#
+setwd(getwd())#
+#
+balloons <- readJPEG("train_data/balloons.jpg")#
+mountains <- readJPEG("rain_data/mountains.jpg")#
+nature <- readJPEG("rain_data/nature.jpg")#
+ocean <- readJPEG("rain_data/ocean.jpg")#
+polarlights <- readJPEG("rain_data/polarlights.jpg")#
+#
+empic <- function(pic, clusters){#
+  stop_criteria <- .00001#
+  num_pixels <- prod(dim(pic))/3#
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  #get a set of all of the pixels together#
+  pixels <- matrix(0,num_pixels,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  tesing <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      tesing[i,j,] <- pixels[(i-1)*width+j,]#
+    }#
+  }#
+  pixels<-scale(pixels)#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,num_pixels, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(balloons,10), "balloons_segmented10.jpg",quality = 1)#
+writeJPEG(empic(balloons,20), "balloons_segmented20.jpg",quality = 1)#
+writeJPEG(empic(balloons,50), "balloons_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(mountains,10), "mountains_segmented10.jpg",quality = 1)#
+writeJPEG(empic(mountains,20), "mountains_segmented20.jpg",quality = 1)#
+writeJPEG(empic(mountains,50), "mountains_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(nature,10), "nature_segmented10.jpg",quality = 1)#
+writeJPEG(empic(nature,20), "nature_segmented20.jpg",quality = 1)#
+writeJPEG(empic(nature,50), "nature_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(ocean,10), "ocean_segmented10.jpg",quality = 1)#
+writeJPEG(empic(ocean,20), "ocean_segmented20.jpg",quality = 1)#
+writeJPEG(empic(ocean,50), "ocean_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(polarlights,20), "polarlights_segmented201.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented202.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented203.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented204.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented205.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+balloons <- readJPEG("train_data/balloons.jpg")#
+mountains <- readJPEG("rain_data/mountains.jpg")#
+nature <- readJPEG("rain_data/nature.jpg")#
+ocean <- readJPEG("rain_data/ocean.jpg")#
+polarlights <- readJPEG("rain_data/polarlights.jpg")#
+#
+empic <- function(pic, clusters){#
+  stop_criteria <- .00001#
+  num_pixels <- prod(dim(pic))/3#
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  #get a set of all of the pixels together#
+  pixels <- matrix(0,num_pixels,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  tesing <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      tesing[i,j,] <- pixels[(i-1)*width+j,]#
+    }#
+  }#
+  pixels<-scale(pixels)#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,num_pixels, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(balloons,10), "balloons_segmented10.jpg",quality = 1)#
+writeJPEG(empic(balloons,20), "balloons_segmented20.jpg",quality = 1)#
+writeJPEG(empic(balloons,50), "balloons_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(mountains,10), "mountains_segmented10.jpg",quality = 1)#
+writeJPEG(empic(mountains,20), "mountains_segmented20.jpg",quality = 1)#
+writeJPEG(empic(mountains,50), "mountains_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(nature,10), "nature_segmented10.jpg",quality = 1)#
+writeJPEG(empic(nature,20), "nature_segmented20.jpg",quality = 1)#
+writeJPEG(empic(nature,50), "nature_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(ocean,10), "ocean_segmented10.jpg",quality = 1)#
+writeJPEG(empic(ocean,20), "ocean_segmented20.jpg",quality = 1)#
+writeJPEG(empic(ocean,50), "ocean_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(polarlights,20), "polarlights_segmented201.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented202.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented203.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented204.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented205.jpg",quality = 1)
+library(jpeg)
+getwd()
+getcwd()
+cwd()
+pwd()
+pwd
+ls
+cd
+ls
+setwd("~/Dropbox/spring17/cs498df/CS498MachineLearning/hw5")
+ls
+balloons = readJPEG("train_data/balloons.jpg")
+balloons
+dim(balloons)
+dim(balloons)[1]
+dim(balloons)[2]
+prod(1)
+prod(2)
+prod([2,3])
+prod(2,3)
+prod(dim(balloons))
+library(jpeg)#
+#
+setwd(getwd())#
+#
+balloons <- readJPEG("train_data/balloons.jpg")#
+mountains <- readJPEG("rain_data/mountains.jpg")#
+nature <- readJPEG("rain_data/nature.jpg")#
+ocean <- readJPEG("rain_data/ocean.jpg")#
+polarlights <- readJPEG("rain_data/polarlights.jpg")#
+#
+empic <- function(pic, clusters){#
+  stop_criteria <- .00001#
+  num_pixels <- prod(dim(pic))/3#
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  #get a set of all of the pixels together#
+  pixels <- matrix(0,num_pixels,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  tesing <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      tesing[i,j,] <- pixels[(i-1)*width+j,]#
+    }#
+  }#
+  pixels<-scale(pixels)#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,num_pixels, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(balloons,10), "balloons_segmented10.jpg",quality = 1)#
+writeJPEG(empic(balloons,20), "balloons_segmented20.jpg",quality = 1)#
+writeJPEG(empic(balloons,50), "balloons_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(mountains,10), "mountains_segmented10.jpg",quality = 1)#
+writeJPEG(empic(mountains,20), "mountains_segmented20.jpg",quality = 1)#
+writeJPEG(empic(mountains,50), "mountains_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(nature,10), "nature_segmented10.jpg",quality = 1)#
+writeJPEG(empic(nature,20), "nature_segmented20.jpg",quality = 1)#
+writeJPEG(empic(nature,50), "nature_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(ocean,10), "ocean_segmented10.jpg",quality = 1)#
+writeJPEG(empic(ocean,20), "ocean_segmented20.jpg",quality = 1)#
+writeJPEG(empic(ocean,50), "ocean_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(polarlights,20), "polarlights_segmented201.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented202.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented203.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented204.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented205.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+balloons <- readJPEG("train_data/balloons.jpg")#
+mountains <- readJPEG("train_data//mountains.jpg")#
+nature <- readJPEG("train_data//nature.jpg")#
+ocean <- readJPEG("train_data//ocean.jpg")#
+polarlights <- readJPEG("train_data//polarlights.jpg")#
+#
+empic <- function(pic, clusters){#
+  stop_criteria <- .00001#
+  num_pixels <- prod(dim(pic))/3#
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  #get a set of all of the pixels together#
+  pixels <- matrix(0,num_pixels,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  tesing <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      tesing[i,j,] <- pixels[(i-1)*width+j,]#
+    }#
+  }#
+  pixels<-scale(pixels)#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,num_pixels, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(balloons,10), "balloons_segmented10.jpg",quality = 1)#
+writeJPEG(empic(balloons,20), "balloons_segmented20.jpg",quality = 1)#
+writeJPEG(empic(balloons,50), "balloons_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(mountains,10), "mountains_segmented10.jpg",quality = 1)#
+writeJPEG(empic(mountains,20), "mountains_segmented20.jpg",quality = 1)#
+writeJPEG(empic(mountains,50), "mountains_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(nature,10), "nature_segmented10.jpg",quality = 1)#
+writeJPEG(empic(nature,20), "nature_segmented20.jpg",quality = 1)#
+writeJPEG(empic(nature,50), "nature_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(ocean,10), "ocean_segmented10.jpg",quality = 1)#
+writeJPEG(empic(ocean,20), "ocean_segmented20.jpg",quality = 1)#
+writeJPEG(empic(ocean,50), "ocean_segmented50.jpg",quality = 1)#
+#
+writeJPEG(empic(polarlights,20), "polarlights_segmented201.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented202.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented203.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented204.jpg",quality = 1)#
+writeJPEG(empic(polarlights,20), "polarlights_segmented205.jpg",quality = 1)
+matrix(0, 10, 3)
+seq(10)
+range(10)
+seq(10)-1
+goby <- readJPEG("images/RobertMixed03.jpg")
+b = readJPEG("train_data/balloons.jpg")
+dim(b)
+b[1,1]
+b[1,1,1]
+b[1,1,0]
+b[0,0,1]
+b[1,1,2]
+b[1,1,]
+my_array = matrix(1:27, dim=c(3,3,3))
+my_array = matrix(c(1:27), dim=c(3,3,3))
+my_array = matrix(c(27), dim=c(3,3,3))
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+empic <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(empic(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(empic(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+writeJPEG(empic(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+writeJPEG(empic(sunset,10), "results/sunset_10.jpg",quality = 1)#
+writeJPEG(empic(sunset,20), "results/sunset_20.jpg",quality = 1)#
+writeJPEG(empic(sunset,50), "results/sunset_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")
+getwd()
+setwd("~/Dropbox/spring17/cs498df/AML/hw6/part 2/")
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+empic <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * num_pixels)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(empic(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(empic(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+writeJPEG(empic(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+writeJPEG(empic(sunset,10), "results/sunset_10.jpg",quality = 1)#
+writeJPEG(empic(sunset,20), "results/sunset_20.jpg",quality = 1)#
+writeJPEG(empic(sunset,50), "results/sunset_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+empic <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.00001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / num_pixels#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(empic(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(empic(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+writeJPEG(empic(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+writeJPEG(empic(sunset,10), "results/sunset_10.jpg",quality = 1)#
+writeJPEG(empic(sunset,20), "results/sunset_20.jpg",quality = 1)#
+writeJPEG(empic(sunset,50), "results/sunset_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+empic <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.00001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(empic(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(empic(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+writeJPEG(empic(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+writeJPEG(empic(sunset,10), "results/sunset_10.jpg",quality = 1)#
+writeJPEG(empic(sunset,20), "results/sunset_20.jpg",quality = 1)#
+writeJPEG(empic(sunset,50), "results/sunset_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+empic <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+writeJPEG(empic(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(empic(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(empic(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+writeJPEG(empic(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+writeJPEG(empic(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+writeJPEG(empic(sunset,10), "results/sunset_10.jpg",quality = 1)#
+writeJPEG(empic(sunset,20), "results/sunset_20.jpg",quality = 1)#
+writeJPEG(empic(sunset,50), "results/sunset_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+#writeJPEG(em(goby,10), "results/goby_10.jpg",quality = 1)#
+#writeJPEG(em(goby,20), "results/goby_20.jpg",quality = 1)#
+#writeJPEG(em(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+#writeJPEG(em(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+#writeJPEG(em(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+#writeJPEG(em(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+#writeJPEG(em(sunset,10), "results/sunset_10.jpg",quality = 1)#
+#writeJPEG(em(sunset,20), "results/sunset_20.jpg",quality = 1)#
+#writeJPEG(em(sunset,50), "results/sunset_50.jpg",quality = 1)#
+#
+for(i in seq(5)){#
+	writeJPEG(em(sunset,20), "results/sunset_20.jpg"+str(i), quality = 1)#
+}
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+#writeJPEG(em(goby,10), "results/goby_10.jpg",quality = 1)#
+#writeJPEG(em(goby,20), "results/goby_20.jpg",quality = 1)#
+#writeJPEG(em(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+#writeJPEG(em(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+#writeJPEG(em(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+#writeJPEG(em(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+#writeJPEG(em(sunset,10), "results/sunset_10.jpg",quality = 1)#
+#writeJPEG(em(sunset,20), "results/sunset_20.jpg",quality = 1)#
+#writeJPEG(em(sunset,50), "results/sunset_50.jpg",quality = 1)#
+#
+for(i in seq(5)){#
+	writeJPEG(em(sunset,20), raw(), quality = 1)#
+}
+paste("afs","jepg")
+paste("afs.","jpeg")
+paste("afs.","jpeg", sep="")
+paste("1","afs.","jpeg", sep="")
+paste(1,"afs.","jpeg", sep="")
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+#writeJPEG(em(goby,10), "results/goby_10.jpg",quality = 1)#
+#writeJPEG(em(goby,20), "results/goby_20.jpg",quality = 1)#
+#writeJPEG(em(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+#writeJPEG(em(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+#writeJPEG(em(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+#writeJPEG(em(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+#writeJPEG(em(sunset,10), "results/sunset_10.jpg",quality = 1)#
+#writeJPEG(em(sunset,20), "results/sunset_20.jpg",quality = 1)#
+#writeJPEG(em(sunset,50), "results/sunset_50.jpg",quality = 1)#
+#
+for(i in seq(5)){#
+	writeJPEG(em(sunset,20), paste("results/sunset_20", "_", i, ".jpg", sep=""), quality = 1)#
+}
+for(i in c(10,20,50)){print i}
+for(i in c(10,20,50)){print i}
+for(i in c(10,20,50)){print (i)}
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+# Segment each of the test images to 10, 20, and 50 segments.#
+imgs <- c("goby", "strlitzia", "sunset")#
+segments <- c(10,20,50)#
+for(img in imgs){#
+	for(segment in segments){#
+		writeJPEG(em(img,segment), paste("result/", img, "_", segment, ".jpg", sep=""), quality = 1)#
+	}#
+}#
+#
+# special test image#
+for(i in seq(5)){#
+	writeJPEG(em(sunset,20), paste("result/sunset_20", "_", i, ".jpg", sep=""), quality = 1)#
+}
+cç
+cç
+cç
+cç#
+ççç≈
+cç#
+ççç≈
+cç#
+ççç≈
+paste(subset,1)
+paste(str(subset),1)
+paste("subset",1)
+paste(toString(subset),1)
+paste(deparse(substitute(subset)),1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+# Segment each of the test images to 10, 20, and 50 segments.#
+imgs <- c(goby, strlitzia, sunset)#
+segments <- c(10,20,50)#
+for(img in imgs){#
+	for(segment in segments){#
+		writeJPEG(em(img,segment), paste("result/", deparse(substitute(img)), "_", segment, ".jpg", sep=""), quality = 1)#
+	}#
+}#
+#
+# special test image#
+for(i in seq(5)){#
+	writeJPEG(em(sunset,20), paste("result/sunset_20", "_", i, ".jpg", sep=""), quality = 1)#
+}
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  while(TRUE){#
+    #E Step - calculate the expected value of log liklihood:#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    print(Q)#
+    Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(length(Qs) > 1){#
+      if(Q - Qs[length(Qs)-1] < stop_criteria){#
+        break#
+      }#
+    }#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+       final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#
+# Segment each of the test images to 10, 20, and 50 segments.#
+imgs <- c(goby, strlitzia, sunset)#
+segments <- c(10,20,50)#
+for(img in imgs){#
+	for(segment in segments){#
+		#writeJPEG(em(img,segment), paste("result/", deparse(substitute(img)), "_", segment, ".jpg", sep=""), quality = 1)#
+		print(img, segment)#
+	}#
+}
+imgs <- c(goby, strlitzia, sunset)#
+segments <- c(10,20,50)#
+print(ims, segments)
+imgs <- c(goby, strlitzia, sunset)#
+segments <- c(10,20,50)#
+print(imgs, segments)
+imgs <- t(goby, strlitzia, sunset)#
+segments <- c(10,20,50)#
+print(imgs, segments)#
+for(img in imgs){#
+	for(segment in segments){#
+		#writeJPEG(em(img,segment), paste("result/", deparse(substitute(img)), "_", segment, ".jpg", sep=""), quality = 1)#
+		print(img, segment)#
+	}#
+}
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  old_Q <- 0#
+  flag <- 0#
+  while(TRUE){#
+    #E Step#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    #print(Q)#
+    #Qs <- c(Qs, Q)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    #if(length(Qs) > 1){#
+    #  if(Q - Qs[length(Qs)-1] < stop_criteria){#
+    #    break#
+    #  }#
+    #}#
+    if(flag == 0){#
+    	old_Q <- Q#
+    	flag <- 1#
+    } else{#
+    	if(Q - old_Q < stop_criteria){#
+    		break#
+    	}#
+    }#
+    old_Q <- Q#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+      final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#imgs <- c(goby, strlitzia, sunset)#
+#segments <- c(10,20,50)#
+#for(img in imgs){#
+#	for(segment in segments){#
+#		writeJPEG(em(img,segment), paste("results/", img, "_", segment, ".jpg", sep=""),quality = 1)#
+#	}#
+#}#
+#
+writeJPEG(em(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(em(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(em(goby,50), "results/goby_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(pic, clusters){ #
+  height <- dim(pic)[1]#
+  width <- dim(pic)[2]#
+  # Create an empty matrix with dimension pixels * 3#
+  pixels <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      pixels[((i-1)*width)+j,] <- pic[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  pixels<-scale(pixels)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  ranvals <- runif(3*clusters)#
+  #set means to be random values that sum to 1 for each cluster mean#
+  means <- matrix(ranvals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  Qs <- c()#
+  old_Q <- 0#
+  flag <- 0#
+  while(TRUE){#
+    #E Step#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(pixels)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    #M step#
+    for(j in seq(clusters)){#
+      #Update p's with additive smoothing#
+      top <- colSums(pixels * wijs[,j]) #+ smoothing_constant#
+      bottom <- sum(wijs[,j]) #+ (smoothing_constant * height*width)#
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(flag == 0){#
+    	old_Q <- Q#
+    	flag <- 1#
+    } else{#
+    	if(Q - old_Q < stop_criteria){#
+    		break#
+    	}#
+    }#
+    old_Q <- Q#
+  }#
+  #Construct final image#
+  final_img <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      point <- pixels[index,]#
+      meanseg <- which(wijs[index,] == max(wijs[index,]))#
+      final_img[i,j,] <- means[meanseg,]*attr(pixels, 'scaled:scale') + attr(pixels, 'scaled:center')#
+    }#
+  }#
+  return(final_img)#
+}#
+#imgs <- c(goby, strlitzia, sunset)#
+#segments <- c(10,20,50)#
+#for(img in imgs){#
+#	for(segment in segments){#
+#		writeJPEG(em(img,segment), paste("results/", img, "_", segment, ".jpg", sep=""),quality = 1)#
+#	}#
+#}#
+#
+writeJPEG(em(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(em(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(em(goby,50), "results/goby_50.jpg",quality = 1)#
+#
+writeJPEG(em(strlitzia,10), "results/strlitzia_10.jpg",quality = 1)#
+writeJPEG(em(strlitzia,20), "results/strlitzia_20.jpg",quality = 1)#
+writeJPEG(em(strlitzia,50), "results/strlitzia_50.jpg",quality = 1)#
+#
+writeJPEG(em(sunset,10), "results/sunset_10.jpg",quality = 1)#
+writeJPEG(em(sunset,20), "results/sunset_20.jpg",quality = 1)#
+writeJPEG(em(sunset,50), "results/sunset_50.jpg",quality = 1)
+library(jpeg)#
+#
+setwd(getwd())#
+#
+goby <- readJPEG("images/RobertMixed03.jpg")#
+strlitzia <- readJPEG("images/smallstrelitzia.jpg")#
+sunset <- readJPEG("images/smallsunset.jpg")#
+#
+em <- function(img, clusters){ #
+  height <- dim(img)[1]#
+  width <- dim(img)[2]#
+  # Create an empty matrix with dimension (width*hight) X 3#
+  img_2d <- matrix(0,height*width,3)#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      img_2d[((i-1)*width)+j,] <- img[i,j,]#
+    }#
+  }#
+  # scale() will calculate the mean and std of the vector and then normalize the vector.#
+  img_2d <- scale(img_2d)#
+#
+  pis <- matrix(1/clusters,1,clusters)#
+  # Genrate random compositions with a uniform distribution.#
+  random_vals <- runif(3*clusters)#
+  means <- matrix(random_vals, nrow=clusters)#
+  #EM steps #
+  stop_criteria <- 0.000001#
+  old_Q <- 0#
+  flag <- 0#
+  while(TRUE){#
+    #E Step#
+    inner <- matrix(0,height*width, clusters)#
+    for(i in seq(clusters)){#
+      dist <- t(t(img_2d)-means[i,])#
+      inner[,i] <- (-.5) * rowSums(dist^2)#
+    }#
+    #calculate wijs#
+    top <- exp(inner) %*% diag(pis[1:clusters])#
+    bottom <- rowSums(top)#
+    wijs <- top/bottom#
+    #calculate Q#
+    Q <- sum(inner*wijs)#
+    #M step#
+    for(j in seq(clusters)){#
+      # smoothing_constant#
+      top <- colSums(img_2d * wijs[,j])#
+      bottom <- sum(wijs[,j]) #
+      means[j,] <-top/bottom#
+      #update pis#
+      pis[j] <- sum(wijs[,j]) / height*width#
+    }#
+    #stopping rule#
+    if(flag == 0){#
+    	flag <- 1#
+    } else{#
+    	if(Q - old_Q < stop_criteria){#
+    		break#
+    	}#
+    }#
+    old_Q <- Q    #
+  }#
+  # Construct return image#
+  ans <- array(0,c(height, width,3))#
+  for(i in seq(height)){#
+    for(j in seq(width)){#
+      index <- (i-1)*width + j#
+      mean_segment <- which(wijs[index,] == max(wijs[index,]))#
+      ans[i,j,] <- means[mean_segment,]*attr(img_2d, 'scaled:scale') + attr(img_2d, 'scaled:center')#
+    }#
+  }#
+  return(ans)#
+}#
+#
+writeJPEG(em(goby,10), "results/goby_10.jpg",quality = 1)#
+writeJPEG(em(goby,20), "results/goby_20.jpg",quality = 1)#
+writeJPEG(em(goby,50), "results/goby_50.jpg",quality = 1)
