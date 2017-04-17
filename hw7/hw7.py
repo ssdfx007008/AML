@@ -5,7 +5,7 @@ import numpy as np
 from pylab import imshow, show, cm
 import random
 
-def get_labeled_data(imagefile, labelfile):
+def get_noisy_data(imagefile, labelfile):
     """Read input-vector (image) and target class (label, 0-9) and return
        it as list of tuples.
     """
@@ -33,21 +33,26 @@ def get_labeled_data(imagefile, labelfile):
 
     if number_of_images != N:
         raise Exception('number of labels did not match the number of images')
+    N=500
 
     # Get the data
     x = zeros((N, rows, cols), dtype=float32)  # Initialize numpy array
     y = zeros((N, 1), dtype=uint8)  # Initialize numpy array
-    for i in range(N):
-        if i % 1000 == 0:
-            print("i: %i" % i)
+    z = zeros((N, rows, cols), dtype=float32)  
+    c = zeros((N, rows, cols), dtype=float32)  
+
+    for i in range(500):
         for row in range(rows):
             for col in range(cols):
                 tmp_pixel = images.read(1)  # Just a single byte
                 tmp_pixel = unpack('>B', tmp_pixel)[0]
-                x[i][row][col] = (-1)*(2.0*(random.random()<0.02)-1)*((tmp_pixel>0.5)*2-1)
+                ran=(random.random()<0.02)
+                c[i][row][col] = (-1)*(2.0*ran-1)*((tmp_pixel>0.5)*2-1)                
+                x[i][row][col] = c[i][row][col]
+                z[i][row][col]=((tmp_pixel>0.5)*2-1)
         tmp_label = labels.read(1)
         y[i] = unpack('>B', tmp_label)[0]
-    return (x, y)
+    return (x,y, c,z)
 
 
 def view_image(image, label=""):
@@ -56,15 +61,20 @@ def view_image(image, label=""):
     imshow(image, cmap=cm.gray)
     show()
 #%%
-
-
-data=get_labeled_data("t10k-images-idx3-ubyte.gz","t10k-labels-idx1-ubyte.gz")
-output=np.copy(data)
+data=get_noisy_data("t10k-images-idx3-ubyte.gz","t10k-labels-idx1-ubyte.gz")
+output=zeros((500,28,28), dtype=float32)
 #%%
-miu=zeros((28,28))+1
-miu_pre=zeros((28,28))+0
-for imgIdx in [0]:
-    while np.sum(abs(miu_pre-miu))>0.0000000000000001:
+
+correct=0.0
+wrong=0.0
+maxErr=0.0
+imgIdx=0
+smaErr=100000
+sindex=0
+for imgIdx in range(500):
+    miu=zeros((28,28))+0.5
+    miu_pre=zeros((28,28))    
+    while np.sum(abs(miu_pre-miu))>0.0001:
         miu_pre=miu
         for i in range(28):
             for j in range(28):
@@ -77,33 +87,39 @@ for imgIdx in [0]:
                     neighbor+=0.2*(data[0][imgIdx][i][j-1]*2-1)
                 if(j+1<28):
                     neighbor+=0.2*(data[0][imgIdx][i][j-1]*2-1)
-                        
                     xinput=2*data[0][imgIdx][i][j]
                     miu[i][j]= np.exp(neighbor+xinput)/(np.exp(neighbor+xinput)+np.exp(-neighbor-xinput))
-    for i in range(28):
+    picErr=0
+    for i in range(28): 
         for j in range(28):
             x=data[0][imgIdx][i][j]
-            output[0][imgIdx][i][j]=(-1)**(miu[i][j]**((1+x)/2)*(1-miu[i][j])**((1-x)/2) <0.5)*x            
-            print(output[0][imgIdx][i][j])
-view_image(data[0][0],data[1][0])
-view_image(output[0][0],output[1][0])
+            output[imgIdx][i][j]=(-1)**(miu[i][j]**((1+x)/2)*(1-miu[i][j])**((1-x)/2) <0.5)*x 
+            if output[imgIdx][i][j]!=data[3][imgIdx][i][j]:
+                wrong+=1.0
+                picErr+=1
+            else:
+                correct+=1.0
+    if picErr>maxErr:
+        maxErr=picErr
+        index=imgIdx
+    if picErr<smaErr:
+        smaErr=picErr
+        sindex=imgIdx
+#%%%~
+view_image(data[3][index],data[1][index])
+view_image(data[0][index],data[1][index])
+view_image(output[index],data[1][index])
+print("the least accuracy is",(28*28-maxErr)/28.0/28.0,"labeled",data[1][index])
+#%%
+view_image(data[3][sindex],data[1][sindex])
+view_image(data[0][sindex],data[1][sindex])
+view_image(output[sindex],data[1][sindex])
+print"the largest accuracy is", (28*28-smaErr)/28.0/28.0, "labeled",data[1][sindex]
+#%%
 
+print("the overall accuracy is ",correct/(correct+wrong))
 #print(data[0][5])
-#%%
 
-
-
-
-
-#%%
-
-
-
-#%%
-print(len(data))
-#%%
-view_image(data[0][3],data[1][1])
-print(data[0][1][5][14])
 
 
 
